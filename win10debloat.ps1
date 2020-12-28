@@ -430,13 +430,20 @@ $installchoco.Add_Click({
 })
 
 $brave.Add_Click({ 
-    Invoke-WebRequest -Uri "https://laptop-updates.brave.com/download/CHR253" -OutFile $env:USERPROFILE\Downloads\brave.exe
-	~/Downloads/brave.exe
+	Write-Host "Installing Brave Browser"
+	choco install brave -y
+	    $wshell.Popup("Operation Completed",0,"Done",0x0)	
 })
 
 $firefox.Add_Click({ 
     Write-Host "Installing Firefox"
     choco install firefox -y
+	$wshell.Popup("Operation Completed",0,"Done",0x0)
+})
+
+$gchrome.Add_Click({ 
+    Write-Host "Installing Google Chrome"
+    choco install googlechrome -y
 	$wshell.Popup("Operation Completed",0,"Done",0x0)
 })
 
@@ -500,10 +507,10 @@ $essentialtweaks.Add_Click({
     Checkpoint-Computer -Description "RestorePoint1" -RestorePointType "MODIFY_SETTINGS"
 
     Write-Host "Running O&O Shutup with Recommended Settings"
-	Import-Module BitsTransfer
+    	Import-Module BitsTransfer
 	Start-BitsTransfer -Source "https://raw.githubusercontent.com/ChrisTitusTech/win10script/master/ooshutup10.cfg" -Destination ooshutup10.cfg
-	Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination OOSU10.exe
-	./OOSU10.exe ooshutup10.cfg /quiet
+	choco install shutup10 -y
+	OOSU10 ooshutup10.cfg /quiet
 
     Write-Host "Disabling Telemetry..."
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
@@ -748,6 +755,29 @@ $Bloatware = @(
     If (Test-Path $Edge) {
         Set-Item $Edge AppXd4nrz8ff68srnhf9t5a8sbjyar1cr723_ 
     }
+    
+    #Removes Paint3D stuff from context menu
+$Paint3Dstuff = @(
+        "HKCR:\SystemFileAssociations\.3mf\Shell\3D Edit"
+	"HKCR:\SystemFileAssociations\.bmp\Shell\3D Edit"
+	"HKCR:\SystemFileAssociations\.fbx\Shell\3D Edit"
+	"HKCR:\SystemFileAssociations\.gif\Shell\3D Edit"
+	"HKCR:\SystemFileAssociations\.jfif\Shell\3D Edit"
+	"HKCR:\SystemFileAssociations\.jpe\Shell\3D Edit"
+	"HKCR:\SystemFileAssociations\.jpeg\Shell\3D Edit"
+	"HKCR:\SystemFileAssociations\.jpg\Shell\3D Edit"
+	"HKCR:\SystemFileAssociations\.png\Shell\3D Edit"
+	"HKCR:\SystemFileAssociations\.tif\Shell\3D Edit"
+	"HKCR:\SystemFileAssociations\.tiff\Shell\3D Edit"
+    )
+    #Rename reg key to remove it, so it's revertible
+    foreach ($Paint3D in $Paint3Dstuff) {
+        If (Test-Path $Paint3D) {
+	    $rmPaint3D = $Paint3D + "_"
+	    Set-Item $Paint3D $rmPaint3D
+	}
+    }
+    
 	$wshell.Popup("Operation Completed",0,"Done",0x0)
 })
 
